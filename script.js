@@ -55,71 +55,174 @@ function handleLogin(event) {
     
 }
 
-// START ADD TO CART SECTION END USER LOG
 
-function addToCart(item, price) {
-    console.log(`cart`, cart);
-    console.log(`item`,item);
-    console.log(`price`,price);
+function createMenu(menu){
+    let ulElement = document.getElementById("menu");
+    ulElement.style.listStyleType = 'none';
+    if(menu && menu.length > 0){
+        for (let i = 0; i < menu.length; i++) {
+            const liElement = document.createElement('li')
+            liElement.innerHTML = `
+            <div class= "menu-item">
+            <span id="${menu[i].name}">${menu[i].name}</span>
+            <button onclick="addToCart('${menu[i].name}', '${menu[i].price}')">Add To Cart ($${menu[i].price.toFixed(2)})</button>
 
-    let totalCost = 0;
+            </div>
+         `;
+         ulElement.appendChild(liElement);
+        }
+    }
 
-    if(cart.length === 0) {
+}
+
+function addToCart(name, price){
+    console.log('item in addToCart', name, price)
+
+    price = parseFloat(price);
+
+    // If the cart is empty, add the first item directly
+    if(cart.length === 0){
         const objectToInsert = {
-            drink: item, 
+            drink: name,
             cost: price,
-            qty: 1
+            quantity: 1
         }
         cart.push(objectToInsert)
     }
+    // if cart is not empty, we need to check if the passed in item exists
+    else{
 
-    else {
+        // you will see booleans created like this pretty often. it's typically called a flag.  
+        let itemExists = false;
 
-    // to find if object already exists in the cart
-
-    for (let index = 0; index < cart.length; index++) {
-
-
-            if(cart[index].drink === item) {
-                cart[index].qty++;
+        // check if item already exists in cart. if it is then increase the quantity and set the flag to true
+        // you will notice 'break'.  this is a keyword in javascript.  it breaks out of the loop.  it is used here to break out as soon if the item is found since there is no need to keep going. unlike return, which would exit the entire function, break just exits the loop
+        for (let index = 0; index < cart.length; index++) {
+            if(cart[index].drink === name){
+                cart[index].quantity++
+                itemExists = true
+                break
             }
+        }
 
-
-        else{
+        // if there are items in the cart, but this item does not exist, add it to the cart
+        if(!itemExists){
             const objectToInsert = {
-                drink: item, 
+                drink: name,
                 cost: price,
-                qty: 1
+                quantity: 1
             }
             cart.push(objectToInsert)
         }
-  }
+    }
+    
+    // call (invoke) the updateCart() function.  we orginally had the updateCart() code in the addToCart() function, but it is more readable to separate it out. 
+    updateCart()
 
-  console.log(`cart`, cart)
 }
 
-    // console.log(`my object to insert`, objectToInsert);
 
-    // cart.push(objectToInsert);
-    // console.log(`cart pushed`, cart); 
-    // probably incorrect, jumping around in the lesson
+
+function updateCart() {
+
+    //set total cost to zero
+    let totalCost = 0;
 
     let ulElement = document.getElementById("cart-items");
-    ulElement.innerHTML = ''
-    let liElement = document.createElement('li');
-    console.log(`liElement`, liElement);
+    ulElement.innerHTML = "";
+    
 
     for (let index = 0; index < cart.length; index++) {
         console.log('index', index);
         console.log('cart index', cart[index]);
 
-        totalCost += cart[index].cost;
+        totalCost += cart[index].cost * cart[index].quantity;
 
-        liElement.innerText = `Item: ${cart[index].drink}, Price: $${cart[index].cost.toFixed(2)}, Qty: ${cart[index].qty}`;
+        const liElement = document.createElement('li');
+        liElement.innerHTML = `Item: ${cart[index].drink}, Price: $${cart[index].cost.toFixed(2)}, Qty: ${cart[index].quantity};
+        <button onclick="removeQty(${index})">-</button><button onclick="addQty(${index})">+</button><button onclick="removeItem(${index})">Remove</button>`                
         ulElement.appendChild(liElement);
+        console.log(`liElement`, liElement);
     }
     console.log(`totalCost`, totalCost);
 
     let totalElement = document.getElementById(`total`);
         totalElement.innerText = totalCost.toFixed(2);
 }
+
+function removeItem(index){
+cart.splice(index, 1);
+updateCart();
+}
+
+function addQty(index) {
+    cart[index].quantity++;
+    updateCart()
+} 
+function removeQty(index) {
+    if (cart[index].quantity === 1) {
+        removeItem(index)
+    } else {
+    cart[index].quantity--
+    updateCart()
+    }
+} 
+
+// Function to handle checkout
+// this function just empties the cart.  this is where you would add a payment system. 
+// i did add a ternary operator on the alert.  
+
+// ${loggedInUser && loggedInUser.username ? loggedInUser.username : 'Human'} - this bit is saying 'if loggedInUser is exists AND loggedInUser.username exists then display the value of loggedInUser.username.  if loggedInUser doesnt exist OR loggedInUser.username doesnt exist the display Human.  so you can think of the ? as an if and the : as an else.  you can have very long and confusing ternary operators so in most cases an if/else block might be a better way to go...for now :)
+function checkout() {
+    if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+    }
+    alert(`Thank you for your purchase, ${loggedInUser && loggedInUser.username ? loggedInUser.username : 'Human'}!`);
+    cart.length = 0;
+    updateCart();
+}
+
+// function getUserLocation(){
+//     console.log(`getUserLocation`)
+//     if (navigator.geolocation) {
+//         // get the user's current position
+//         navigator.geolocation.getCurrentPosition(function(position){
+//             console.log(`position`, position)
+//             const latitude = position.coords.latitutde;
+//             const longitude = position.coords.longitude;
+
+            //now that we have coordinates, we can use them to fetch weather data
+
+//             getWeather(latitude, longitude);
+//         }, function(error) {
+//             console.log("Error getting geolocation: " + error.message);
+//         }
+//     )
+//     }
+// }
+
+function practiceGetRoute() {
+    const response = fetch(`http://localhost:3000`)
+    console.log(`response`, response)
+}
+
+async function getMenuFromServer() {
+    const response = await fetch(`http://localhost:3000/getMenu`)
+    console.log(`response`, response)
+    if(response.status !=200) {
+        console.error(`response error not ok`)
+        return;
+    }
+    
+    let data = await response.json();
+    console.log(`data`, data);
+
+    createMenu(data);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    // createMenu();
+    // getUserLocation();
+    getMenuFromServer();
+});
