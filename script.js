@@ -1,6 +1,3 @@
-// User data
-const user = {username: `admin`, password: `password123`};
-
 // Cart Data global variable for cart as an array
 const cart = [];
 
@@ -13,7 +10,7 @@ let loggedInUser = null;
 
 //create function to handle login
 
-function handleLogin(event) {
+async function handleLogin(event) {
 
     // must prevent default refresh using event.preventdefault();
     event.preventDefault();
@@ -37,21 +34,30 @@ function handleLogin(event) {
     const password = passwordElement.value;
     console.log(`password`, password);
 
-    //compare user input to database should use if statement
-    console.log(`user.username`, user.username)
-    console.log(`user.password`, user.password)
-    if(user.username !== username || user.password !== password) {
-       alert(`The information you entered is incorrect`);
-       return;
-    }
 
-    else {
-        loggedInUser = user;
-        console.log(`loggedInUser`, loggedInUser);
-    }
+//ISSUES HERE HARRASS FOLKS
+    const response = await fetch('http://localhost:3000/login',
+    {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    })
+
+if(!response.ok){
+    alert(`invalid credentials`)
+
+}
+
+let responseJson = await response.json()
+console.log(`responseJson`, responseJson)
 
     let welcomeMessageElement = document.getElementById(`welcome-message`);
-    welcomeMessageElement.innerText = `Welcome ${loggedInUser.username}`;
+    welcomeMessageElement.innerText = `Welcome ${username}`;
     
 }
 
