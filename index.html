@@ -36,6 +36,18 @@
             <p>Total: $<span id="total">0.00</span></p>
             <button onclick="checkout()">Checkout</button>
         </section>
+
+        <section id="formSection">
+            <h2>Checkout Form</h2>
+            <form id="ckform" onsubmit="handleForm(event)">
+                <input type="text" id="firstName" label="First Name" placeholder="First Name" required />
+                <input type="text" id="lastName" label="Last Name" placeholder="Last Name" required />
+                <input type="email" id="email" label="email" placeholder="email" required />
+                <input type="message" id="message" label="message" placeholder="message" required />
+                <button type="submit">Submit</button>
+                <span id="contact-form-submitted-message"></span>
+            </form>
+        </section>
     </main>
     <script src="script.js"></script>
 </body>

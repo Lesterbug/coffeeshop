@@ -189,6 +189,22 @@ function checkout() {
     updateCart();
 }
 
+function handleForm(event) {
+    event.preventDefault(); // prevent the form from actually submitting and reloading the page
+
+    // Gather the form data
+
+    const firstName = document.getElementById('firstName').value;
+    console.log(`firstName`, firstName);
+    const lastName = document.getElementById(`lastName`).value;
+    console.log(`lastName`, lastName);
+    const email = document.getElementById(`email`).value;
+    console.log(`email`, email);
+    const message = document.getElementById(`message`).value;
+    console.log(`message`, message);
+
+}
+
 // function getUserLocation(){
 //     console.log(`getUserLocation`)
 //     if (navigator.geolocation) {
